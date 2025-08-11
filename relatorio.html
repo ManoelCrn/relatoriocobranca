@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Mensalidades</title>
+    <link rel="stylesheet" href="relatorio.css">
+</head>
+<body>
+    <div class="relatorio-container">
+        <header>
+            <div class="logo">
+                <img src="imagens/logo.png" alt="Logo da Empresa">
+            </div>
+            <div class="titulo">
+                <h1>Relatório de Mensalidades</h1>
+                <p>Resumo de débitos do associado</p>
+            </div>
+        </header>
+
+        <section class="dados-associado">
+            <h2>Dados do Associado</h2>
+            <p><strong>Matrícula:</strong> <span id="matricula"></span></p>
+            <p><strong>Nome:</strong> <span id="nome"></span></p>
+            <p><strong>Tipo:</strong> <span id="tipo"></span></p>
+            <p><strong>Colaborador:</strong> <span id="colaborador"></span></p>
+        </section>
+
+        <section class="tabela-mensalidades">
+            <h2>Mensalidades</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Mensalidade</th>
+                        <th>Meses Atraso</th>
+                        <th>Multa (%)</th>
+                        <th>Juros (%)</th>
+                        <th>Total Atualizado</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="total-label">Total Geral</td>
+                        <td id="total-geral"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+
+        <footer>
+            <p>Gerado em <span id="data-geracao"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dados = JSON.parse(localStorage.getItem("dadosRelatorio"));
+            if (!dados) {
+                alert("Nenhum dado encontrado para gerar o relatório.");
+                window.close();
+                return;
+            }
+
+            document.getElementById("matricula").textContent = dados.matricula;
+            document.getElementById("nome").textContent = dados.nome;
+            document.getElementById("tipo").textContent = dados.tipo;
+            document.getElementById("colaborador").textContent = dados.colaborador;
+
+            const corpoTabela = document.getElementById("corpo-tabela");
+            let totalGeral = 0;
+
+            dados.mensalidades.forEach(m => {
+                totalGeral += m.valorTotal;
+                corpoTabela.innerHTML += `
+                    <tr>
+                        <td>${m.descricao}</td>
+                        <td>R$ ${m.mensalidade.toFixed(2)}</td>
+                        <td>${m.mesesAtraso}</td>
+                        <td>${m.multa}</td>
+                        <td>${m.juros}</td>
+                        <td>R$ ${m.valorTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("total-geral").textContent = "R$ " + totalGeral.toFixed(2);
+            document.getElementById("data-geracao").textContent = new Date().toLocaleDateString("pt-BR");
+
+            // Remover os dados do localStorage depois de carregar
+            localStorage.removeItem("dadosRelatorio");
+        });
+    </script>
+</body>
+</html>

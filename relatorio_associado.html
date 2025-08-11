@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório do Associado</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link rel="stylesheet" href="relatorio_associado.css">
+</head>
+<body>
+    <div class="cabecalho">
+        <div class="logo-area">
+            <!-- coloque a logo em ./images/logo.png -->
+            <img src="imagens/logo.png" alt="Logo" id="logo" />
+        </div>
+        <div class="info-geral">
+            <h2>Relação de Mensalidades - Associado</h2>
+            <div class="data-geracao">DATA: <span id="data-atual"></span></div>
+        </div>
+    </div>
+
+    <div class="dados-associado">
+        <p><strong>Matrícula:</strong> <span id="matricula"></span></p>
+        <p><strong>Nome:</strong> <span id="nome"></span></p>
+        <p><strong>Tipo:</strong> <span id="tipo"></span></p>
+        <p><strong>Gerado por:</strong> <span id="colaborador"></span></p>
+    </div>
+
+    <table id="tabela-relatorio">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Mensalidade (R$)</th>
+                <th>Meses em Atraso</th>
+                <th>Multa (%)</th>
+                <th>Juros ao Mês (%)</th>
+                <th>Valor Total (R$)</th>
+            </tr>
+        </thead>
+        <tbody id="corpo-tabela">
+            <!-- preenchido por JS -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" class="rodape-left">QUANTIDADE DE REGISTROS:</td>
+                <td id="quantidade"></td>
+            </tr>
+            <tr>
+                <td colspan="5" class="rodape-left">TOTAL GERAL (R$):</td>
+                <td id="valorFinal"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!--<div class="assinatura">
+        <p>__________________________</p>
+        <p>Assinatura do Colaborador</p>
+    </div>-->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Date
+            document.getElementById("data-atual").textContent = new Date().toLocaleDateString('pt-BR');
+
+            const dados = JSON.parse(localStorage.getItem("dadosRelatorioAssociado"));
+            if (!dados) {
+                alert("Nenhum dado encontrado para o relatório associado.");
+                // Dar chance ao usuário de fechar manualmente
+                document.getElementById("corpo-tabela").innerHTML = "<tr><td colspan='6'>Nenhum dado disponível.</td></tr>";
+                return;
+            }
+
+            document.getElementById("matricula").textContent = dados.matricula;
+            document.getElementById("nome").textContent = dados.nome;
+            document.getElementById("tipo").textContent = dados.tipo;
+            document.getElementById("colaborador").textContent = dados.colaborador;
+
+            const tbody = document.getElementById("corpo-tabela");
+            tbody.innerHTML = "";
+            let totalGeral = 0;
+
+            dados.linhas.forEach(l => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${l.descricao}</td>
+                    <td>R$ ${Number(l.mensalidade).toFixed(2)}</td>
+                    <td>${l.mesesAtraso}</td>
+                    <td>${l.multa}</td>
+                    <td>${l.juros}</td>
+                    <td>R$ ${Number(l.valorTotal).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+                totalGeral += Number(l.valorTotal);
+            });
+
+            document.getElementById("quantidade").textContent = dados.quantidade ?? dados.linhas.length;
+            document.getElementById("valorFinal").textContent = totalGeral.toFixed(2);
+        });
+    </script>
+</body>
+</html>
+
+
+
