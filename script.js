@@ -174,6 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
         limparBtn.style.display = "inline-block";
     });
 
+    }
+
     if (limparBtn) {
         limparBtn.addEventListener("click", () => {
             form.reset();
@@ -362,6 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
 
 
 
