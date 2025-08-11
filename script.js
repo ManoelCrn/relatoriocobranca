@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ** Alteração principal aqui **
-    if (adicionarBtn) {
+   if (adicionarBtn) {
     adicionarBtn.addEventListener("click", () => {
         const matricula = document.getElementById("matricula").value.trim();
         const nome = document.getElementById("nome").value.trim();
@@ -173,8 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Mostrar botão limpar
         limparBtn.style.display = "inline-block";
     });
-
-    }
+}
 
     if (limparBtn) {
         limparBtn.addEventListener("click", () => {
@@ -364,15 +363,3 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
