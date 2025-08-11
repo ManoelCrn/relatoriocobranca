@@ -173,18 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Mostrar botão limpar
         limparBtn.style.display = "inline-block";
     });
-}
-            // NÃO limpar formulário para manter os dados
-            // form.reset();
-
-            // Manter tabela e botões visíveis
-            tabelaMeses.style.display = "table";
-            acoesTabela.style.display = "flex";
-
-            // Mostrar botão limpar
-            limparBtn.style.display = "inline-block";
-        });
-    }
 
     if (limparBtn) {
         limparBtn.addEventListener("click", () => {
@@ -374,6 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
 
 
 
