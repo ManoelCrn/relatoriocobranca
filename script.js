@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const limparBtn = document.getElementById("limpar");
     const removerSelecionadosBtn = document.getElementById("removerSelecionados");
     const gerarRelatorioBtn = document.getElementById("gerarRelatorio");
-    const gerarRelatorioAssociadoBtn = document.getElementById("gerarRelatorioAssociado"); // botão existente no index
+    const gerarRelatorioAssociadoBtn = document.getElementById("gerarRelatorioAssociado");
     const acoesTabela = document.getElementById("acoes-tabela");
     const matriculaInput = document.getElementById("matricula");
 
@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
 
-    // Mapa para abreviar nomes (3 letras, em português)
     const abrevMes = {
         "Janeiro": "JAN", "Fevereiro": "FEV", "Março": "MAR", "Abril": "ABR",
         "Maio": "MAI", "Junho": "JUN", "Julho": "JUL", "Agosto": "AGO",
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         2022: 25, 2023: 30, 2024: 30, 2025: 30
     };
 
-    // ======== Validação: matrícula só números ========
     if (matriculaInput) {
         matriculaInput.addEventListener("input", () => {
             matriculaInput.value = matriculaInput.value.replace(/\D/g, "");
@@ -58,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function calculaMesesAtraso(ano, mesIndex) {
         const hoje = new Date();
         const anoAtual = hoje.getFullYear();
-        const mesAtual = hoje.getMonth(); // zero-based
+        const mesAtual = hoje.getMonth();
         let atraso = 0;
 
         if (ano < anoAtual) {
@@ -86,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
         meses.forEach((mes, i) => {
             const mesesAtraso = calculaMesesAtraso(ano, i);
 
-            // só aplica multa/juros se houver atraso
             let totalAtualizado = valorBaseAno;
             if (mesesAtraso > 0) {
                 totalAtualizado += (valorBaseAno * multa / 100) + (valorBaseAno * (juros / 100) * mesesAtraso);
@@ -110,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (selecionarTodosChk) selecionarTodosChk.checked = false;
     }
 
-    // eventos
     const anoInput = document.getElementById("ano");
     const tipoSelect = document.getElementById("tipo");
     if (anoInput) anoInput.addEventListener("input", atualizarTabelaMeses);
@@ -122,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Adicionar
+    // ** Alteração principal aqui **
     if (adicionarBtn) {
         adicionarBtn.addEventListener("click", () => {
             const matricula = document.getElementById("matricula").value.trim();
@@ -141,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const chk = linha.querySelector(".mes-selecionado");
                 if (chk && chk.checked) {
                     mesesSelecionados.push({
-                        descricao: `${chk.value} - ${ano}`, // ex: "Janeiro - 2023"
+                        descricao: `${chk.value} - ${ano}`,
                         mensalidade: parseFloat(chk.dataset.mensalidade),
                         mesesAtraso: parseInt(chk.dataset.atraso),
                         multa: parseInt(chk.dataset.atraso) > 0 ? multa : 0,
@@ -158,22 +154,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
             registros.push({ matricula, nome, tipo, colaborador, ano, mesesSelecionados });
             atualizarTabelaRegistros();
-            form.reset();
-            tabelaMeses.style.display = "none";
-            acoesTabela.style.display = "none";
+
+            // NÃO limpar formulário para manter os dados
+            // form.reset();
+
+            // Manter tabela e botões visíveis
+            tabelaMeses.style.display = "table";
+            acoesTabela.style.display = "flex";
+
+            // Mostrar botão limpar
+            limparBtn.style.display = "inline-block";
         });
     }
 
-    // Limpar
     if (limparBtn) {
         limparBtn.addEventListener("click", () => {
             form.reset();
             tabelaMeses.style.display = "none";
             acoesTabela.style.display = "none";
+
+            // Esconder botão limpar novamente após limpar
+            limparBtn.style.display = "none";
         });
     }
 
-    // atualizar lista de registros
     function atualizarTabelaRegistros() {
         corpoTabelaRegistros.innerHTML = "";
         registros.forEach((reg, index) => {
@@ -195,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // editar
     window.editarRegistro = (index) => {
         const reg = registros[index];
         document.getElementById("matricula").value = reg.matricula;
@@ -206,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
         tabelaMeses.style.display = "table";
         acoesTabela.style.display = "flex";
 
-        // marcar checkboxes de meses conforme o registro
         document.querySelectorAll(".mes-selecionado").forEach(chk => {
             chk.checked = reg.mesesSelecionados.some(m => m.descricao.startsWith(chk.value));
         });
@@ -215,13 +217,11 @@ document.addEventListener("DOMContentLoaded", () => {
         atualizarTabelaRegistros();
     };
 
-    // remover individual
     window.removerRegistro = (index) => {
         registros.splice(index, 1);
         atualizarTabelaRegistros();
     };
 
-    // remover selecionados
     if (removerSelecionadosBtn) {
         removerSelecionadosBtn.addEventListener("click", () => {
             const selecionados = document.querySelectorAll(".registro-selecionado:checked");
@@ -231,7 +231,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---------- Relatório Discriminado (mantém o comportamento atual) ----------
     if (gerarRelatorioBtn) {
         gerarRelatorioBtn.addEventListener("click", () => {
             const selecionados = document.querySelectorAll(".registro-selecionado:checked");
@@ -262,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---------- Relatório Associado (GRUPA POR ANO com meses concatenados) ----------
     if (gerarRelatorioAssociadoBtn) {
         gerarRelatorioAssociadoBtn.addEventListener("click", () => {
             const selecionados = document.querySelectorAll(".registro-selecionado:checked");
@@ -280,10 +278,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // flatten mensalidades e extrair mês e ano
             const mensalidadesPlanas = registrosSelecionados.flatMap(r =>
                 r.mesesSelecionados.map(m => {
-                    // m.descricao = "Mês - ANO"
                     const parts = m.descricao.split(" - ");
                     const nomeMes = parts[0].trim();
                     const ano = parseInt(parts[1], 10);
@@ -299,7 +295,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             );
 
-            // agrupar por ano
             const gruposPorAno = {};
             mensalidadesPlanas.forEach(item => {
                 if (!gruposPorAno[item.ano]) gruposPorAno[item.ano] = [];
@@ -309,28 +304,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const linhas = [];
             let valorFinal = 0;
 
-            // para cada ano: concatenar meses (abreviados), calcular total (somando por mês)
             Object.keys(gruposPorAno).sort((a,b)=>a-b).forEach(anoKey => {
                 const grupo = gruposPorAno[anoKey];
 
-                // ordenar os meses na ordem natural do array "meses"
                 grupo.sort((a,b) => meses.indexOf(a.nomeMes) - meses.indexOf(b.nomeMes));
 
                 const mesesConcatenados = grupo.map(g => abrevMes[g.nomeMes] || g.nomeMes).join(", ");
                 const descricao = `${mesesConcatenados} - ${anoKey}`;
 
-                // mensalidade base: assumimos que as mensalidades no mesmo ano têm o mesmo valor base (pega a primeira)
                 const mensalidadeBase = grupo[0].mensalidade;
-
-                // Contagem de meses selecionados naquele ano (coluna "Meses em Atraso" no seu modelo)
                 const mesesCount = grupo.length;
-
-                // se houver algum mês vencido, marcaremos multa/juros (caso queira mostrar sempre 2/1, ajuste aqui)
                 const temAtraso = grupo.some(g => g.mesesAtraso > 0);
                 const multaExibir = temAtraso ? multa : 0;
                 const jurosExibir = temAtraso ? juros : 0;
 
-                // calcular soma dos totais — aplicando multa/juros por mês apenas se mesesAtraso>0
                 let somaAno = 0;
                 grupo.forEach(g => {
                     let totalMes = g.mensalidade;
@@ -340,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     somaAno += totalMes;
                 });
 
-                somaAno = Math.round((somaAno + Number.EPSILON) * 100) / 100; // arredonda 2 dec
+                somaAno = Math.round((somaAno + Number.EPSILON) * 100) / 100;
                 valorFinal += somaAno;
 
                 linhas.push({
@@ -353,7 +340,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
-            // montar o objeto final no formato que relatorio_associado.html espera
             const dadosRelatorioAssociado = {
                 matricula: registrosSelecionados[0].matricula,
                 nome: registrosSelecionados[0].nome,
@@ -369,7 +355,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
 
 
 

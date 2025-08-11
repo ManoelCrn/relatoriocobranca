@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Controle de Multas e Juros</title>
 <link rel="stylesheet" href="style.css" />
+<style>
+  /* botão limpar começa oculto */
+  #limpar {
+    display: none;
+  }
+</style>
 </head>
 <body>
 <div class="container">
@@ -25,7 +31,13 @@
         </select>
 
         <label for="colaborador">Nome do Colaborador:</label>
-        <input type="text" id="colaborador" required />
+        <select id="colaborador" required>
+            <option value="">--Selecione--</option>
+            <option value="Colaborador A">Colaborador A</option>
+            <option value="Colaborador B">Colaborador B</option>
+            <option value="Colaborador C">Colaborador C</option>
+            <!-- Adicione mais colaboradores conforme necessidade -->
+        </select>
 
         <label for="ano">Ano:</label>
         <input type="number" id="ano" min="2000" max="2100" required />
@@ -78,5 +90,6 @@
 <script src="script.js"></script>
 </body>
 </html>
+
 
 
