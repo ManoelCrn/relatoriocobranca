@@ -1,16 +1,65 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Relatório de Mensalidades</title>
-    <link rel="stylesheet" href="relatorio.css">
+    <link rel="stylesheet" href="relatorio.css" />
+    <style>
+        .botoes-acoes {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .botoes-acoes button {
+            font-size: 1em;
+            padding: 8px 16px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #004080;
+            border: none;
+            color: white;
+            border-radius: 4px;
+        }
+        .botoes-acoes button:hover {
+            background-color: #003060;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #aaa;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .total-label {
+            font-weight: bold;
+            text-align: right;
+        }
+        tfoot tr td {
+            font-weight: bold;
+        }
+        @media print {
+            .botoes-acoes {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="relatorio-container">
+    <div class="relatorio-container" id="relatorioContainer">
+
+        <!-- Botões no topo -->
+        <section class="botoes-acoes">
+            <button id="btnImprimir">Imprimir</button>
+            <button id="btnSalvarPDF">Salvar PDF</button>
+        </section>
+
         <header>
             <div class="logo">
-                <!--<img src="logo.png" alt="Logo da Empresa">-->
-                <img src="logo.png" alt="Logo" id="logo">
+                <img src="./imagens/logo.png" alt="Logo da Empresa" crossorigin="anonymous" />
             </div>
             <div class="titulo">
                 <h1>Relatório de Mensalidades</h1>
@@ -26,34 +75,18 @@
             <p><strong>Colaborador:</strong> <span id="colaborador"></span></p>
         </section>
 
-        <section class="tabela-mensalidades">
-            <h2>Mensalidades</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Descrição</th>
-                        <th>Mensalidade</th>
-                        <th>Meses Atraso</th>
-                        <th>Multa (%)</th>
-                        <th>Juros (%)</th>
-                        <th>Total Atualizado</th>
-                    </tr>
-                </thead>
-                <tbody id="corpo-tabela">
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="5" class="total-label">Total Geral</td>
-                        <td id="total-geral"></td>
-                    </tr>
-                </tfoot>
-            </table>
+        <!-- Container para as tabelas por ano -->
+        <section class="tabelas-por-ano" id="tabelasPorAno">
+            <!-- As tabelas separadas por ano vão aparecer aqui -->
         </section>
 
         <footer>
             <p>Gerado em <span id="data-geracao"></span></p>
         </footer>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -64,39 +97,114 @@
                 return;
             }
 
+            // Preenche dados do associado
             document.getElementById("matricula").textContent = dados.matricula;
             document.getElementById("nome").textContent = dados.nome;
             document.getElementById("tipo").textContent = dados.tipo;
             document.getElementById("colaborador").textContent = dados.colaborador;
 
-            const corpoTabela = document.getElementById("corpo-tabela");
-            let totalGeral = 0;
+            const container = document.getElementById("tabelasPorAno");
 
+            // Agrupa mensalidades por ano
+            const mensalidadesPorAno = {};
             dados.mensalidades.forEach(m => {
-                totalGeral += m.valorTotal;
-                corpoTabela.innerHTML += `
-                    <tr>
+                // Supondo que a descrição é tipo "Janeiro - 2024"
+                const partes = m.descricao.split(' - ');
+                const ano = partes.length > 1 ? partes[1] : 'Sem Ano';
+                if (!mensalidadesPorAno[ano]) {
+                    mensalidadesPorAno[ano] = [];
+                }
+                mensalidadesPorAno[ano].push(m);
+            });
+
+            // Ordena os anos
+            const anos = Object.keys(mensalidadesPorAno).sort();
+
+            anos.forEach(ano => {
+                const mensalidades = mensalidadesPorAno[ano];
+                let totalAno = 0;
+
+                // Título do ano
+                const tituloAno = document.createElement('h2');
+                tituloAno.textContent = `Ano: ${ano}`;
+                container.appendChild(tituloAno);
+
+                // Cria tabela
+                const tabela = document.createElement('table');
+
+                tabela.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Mensalidade</th>
+                            <th>Meses Atraso</th>
+                            <th>Multa (%)</th>
+                            <th>Juros (%)</th>
+                            <th>Total Atualizado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="total-label">Total Ano ${ano}</td>
+                            <td class="total-ano"></td>
+                        </tr>
+                    </tfoot>
+                `;
+
+                const tbody = tabela.querySelector('tbody');
+                const tdTotalAno = tabela.querySelector('.total-ano');
+
+                mensalidades.forEach(m => {
+                    totalAno += m.valorTotal;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                         <td>${m.descricao}</td>
                         <td>R$ ${m.mensalidade.toFixed(2)}</td>
                         <td>${m.mesesAtraso}</td>
                         <td>${m.multa}</td>
                         <td>${m.juros}</td>
                         <td>R$ ${m.valorTotal.toFixed(2)}</td>
-                    </tr>
-                `;
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                tdTotalAno.textContent = `R$ ${totalAno.toFixed(2)}`;
+
+                container.appendChild(tabela);
             });
 
-            document.getElementById("total-geral").textContent = "R$ " + totalGeral.toFixed(2);
+            // Mostra a data de geração
             document.getElementById("data-geracao").textContent = new Date().toLocaleDateString("pt-BR");
 
-            // Remover os dados do localStorage depois de carregar
+            // Remove os dados do localStorage para evitar reaproveitamento
             localStorage.removeItem("dadosRelatorio");
+
+            // Botão imprimir
+            document.getElementById("btnImprimir").addEventListener("click", () => {
+                window.print();
+            });
+
+            // Botão salvar PDF
+            document.getElementById("btnSalvarPDF").addEventListener("click", () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const containerPdf = document.getElementById("relatorioContainer");
+
+                html2canvas(containerPdf, { useCORS: true }).then(canvas => {
+                    const imgData = canvas.toDataURL("image/png");
+                    const imgProps = doc.getImageProperties(imgData);
+                    const pdfWidth = doc.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+                    doc.save(`Relatorio_${dados.matricula}.pdf`);
+                }).catch(err => {
+                    alert("Erro ao gerar PDF: " + err.message);
+                });
+            });
         });
     </script>
 </body>
 </html>
-
-
-
-
-
