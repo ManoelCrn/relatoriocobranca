@@ -15,6 +15,42 @@ body {
     padding: 0;
 }
 
+/* Cabeçalho fixo no topo */
+.header-topo {
+  background-color: #1892CC ; /* Azul legal e profissional */
+  color: white;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container flex pra alinhar logo + texto */
+.container-header {
+  display: flex;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Logo pequena e alinhada */
+.logo {
+  width: 150px;
+  height: 50px;
+  margin-right: 100px;
+  object-fit: contain;
+}
+
+/* Título maior e sem margens */
+.header-topo h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
 .container {
     max-width: 1000px;
     margin: 30px auto;
@@ -24,8 +60,12 @@ body {
     padding: 20px 30px;
 }
 
-h1, h2 {
-    color: #8687BD;
+h1{
+    color: white;
+}
+
+h2 {
+    color: #1892CC;
 }
 
 form {
@@ -52,7 +92,7 @@ form input, form select, form button {
 
 /* Estilo geral para botões azuis */
 .btn-azul {
-    background-color: #8687BD;
+    background-color: #1892CC;
     color: white;
     font-weight: bold;
     border: none;
@@ -62,7 +102,7 @@ form input, form select, form button {
 }
 
 .btn-azul:hover {
-    background-color: #6c6da8;
+    background-color: #1892CC;
 }
 
 /* Estilo geral para botões laranja */
@@ -93,7 +133,7 @@ table th, table td {
 }
 
 thead {
-    background-color: #8687BD;
+    background-color: #1892CC ;
     color: white;
 }
 
