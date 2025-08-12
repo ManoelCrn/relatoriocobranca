@@ -38,8 +38,9 @@
             font-weight: bold;
             text-align: right;
         }
-        tfoot tr td {
+        .linha-total {
             font-weight: bold;
+            background-color: #f0f0f0;
         }
         @media print {
             .botoes-acoes {
@@ -144,32 +145,39 @@
                         </tr>
                     </thead>
                     <tbody></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="5" class="total-label">Total Ano ${ano}</td>
-                            <td class="total-ano"></td>
-                        </tr>
-                    </tfoot>
                 `;
         
                 const tbody = tabela.querySelector('tbody');
-                const tdTotalAno = tabela.querySelector('.total-ano');
         
                 mensalidades.forEach(m => {
-                    totalAno += m.valorTotal;
+                    const mensalidade = Number(m.mensalidade) || 0;
+                    const valorTotal = Number(m.valorTotal) || 0;
+                    const mesesAtraso = m.mesesAtraso || 0;
+                    const multa = m.multa || 0;
+                    const juros = m.juros || 0;
+
+                    totalAno += valorTotal;
+        
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${m.descricao}</td>
-                        <td>R$ ${m.mensalidade.toFixed(2)}</td>
-                        <td>${m.mesesAtraso}</td>
-                        <td>${m.multa}</td>
-                        <td>${m.juros}</td>
-                        <td>R$ ${m.valorTotal.toFixed(2)}</td>
+                        <td>R$ ${mensalidade.toFixed(2)}</td>
+                        <td>${mesesAtraso}</td>
+                        <td>${multa}</td>
+                        <td>${juros}</td>
+                        <td>R$ ${valorTotal.toFixed(2)}</td>
                     `;
                     tbody.appendChild(tr);
                 });
         
-                tdTotalAno.textContent = `R$ ${totalAno.toFixed(2)}`;
+                // Linha total dentro do tbody (sem tfoot)
+                const trTotal = document.createElement('tr');
+                trTotal.classList.add('linha-total');
+                trTotal.innerHTML = `
+                    <td colspan="5" class="total-label">Total Ano ${ano}</td>
+                    <td>R$ ${totalAno.toFixed(2)}</td>
+                `;
+                tbody.appendChild(trTotal);
         
                 container.appendChild(tabela);
             });
