@@ -186,6 +186,8 @@
                 btnImprimir.addEventListener("click", () => {
                     window.print();
                 });
+            }
+        });
 
             // Botão salvar PDF
             //document.getElementById("btnSalvarPDF").addEventListener("click", () => {
@@ -194,21 +196,22 @@
 
                 //const containerPdf = document.getElementById("relatorioContainer");
 
-                html2canvas(containerPdf, { useCORS: true }).then(canvas => {
-                    const imgData = canvas.toDataURL("image/png");
-                    const imgProps = doc.getImageProperties(imgData);
-                    const pdfWidth = doc.internal.pageSize.getWidth();
-                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                //html2canvas(containerPdf, { useCORS: true }).then(canvas => {
+                   // const imgData = canvas.toDataURL("image/png");
+                   // const imgProps = doc.getImageProperties(imgData);
+                   // const pdfWidth = doc.internal.pageSize.getWidth();
+                  //  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-                    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-                    doc.save(`Relatorio_${dados.matricula}.pdf`);
-                }).catch(err => {
-                    alert("Erro ao gerar PDF: " + err.message);
-                });
-            });
+                    //doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+                   // doc.save(`Relatorio_${dados.matricula}.pdf`);
+               // }).catch(err => {
+                   // alert("Erro ao gerar PDF: " + err.message);
+              //  });
+            //});
         });
     </script>
 </body>
 </html>
+
 
 
