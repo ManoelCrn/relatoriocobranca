@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const linhas = [];
             let valorFinal = 0;
 
-            Object.keys(gruposPorAno).sort((a,b)=>a-b).forEach(anoKey => {
+            Object.keys(gruposPorAno).sort((a,b) => a - b).forEach(anoKey => {
                 const grupo = gruposPorAno[anoKey];
 
                 grupo.sort((a,b) => meses.indexOf(a.nomeMes) - meses.indexOf(b.nomeMes));
@@ -331,28 +331,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 const mesesConcatenados = grupo.map(g => abrevMes[g.nomeMes] || g.nomeMes).join(", ");
                 const descricao = `${mesesConcatenados} - ${anoKey}`;
 
-                const mensalidadeBase = grupo[0].mensalidade;
-                const mesesCount = grupo.length;
-                const temAtraso = grupo.some(g => g.mesesAtraso > 0);
-                const multaExibir = temAtraso && toggleJuros.checked ? multa : 0;
-                const jurosExibir = temAtraso && toggleJuros.checked ? juros : 0;
-
                 let somaAno = 0;
+                let temJurosOuMulta = false;
+
                 grupo.forEach(g => {
-                    let totalMes = g.mensalidade;
-                    if (g.mesesAtraso > 0 && toggleJuros.checked) {
-                        totalMes += (g.mensalidade * multa / 100) + (g.mensalidade * (juros / 100) * g.mesesAtraso);
+                    somaAno += g.valorTotal;
+                    if (g.multa > 0 || g.juros > 0) {
+                        temJurosOuMulta = true;
                     }
-                    somaAno += totalMes;
                 });
 
                 somaAno = Math.round((somaAno + Number.EPSILON) * 100) / 100;
                 valorFinal += somaAno;
 
+                const multaExibir = temJurosOuMulta ? multa : 0;
+                const jurosExibir = temJurosOuMulta ? juros : 0;
+
                 linhas.push({
                     descricao,
-                    mensalidade: mensalidadeBase,
-                    mesesAtraso: mesesCount,
+                    mensalidade: grupo[0].mensalidade,
+                    mesesAtraso: grupo.length,
                     multa: multaExibir,
                     juros: jurosExibir,
                     valorTotal: somaAno
@@ -374,3 +372,4 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
