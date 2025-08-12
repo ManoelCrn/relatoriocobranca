@@ -119,61 +119,61 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ** Alteração principal aqui **
-   if (adicionarBtn) {
-    adicionarBtn.addEventListener("click", () => {
-        const matricula = document.getElementById("matricula").value.trim();
-        const nome = document.getElementById("nome").value.trim();
-        const tipo = document.getElementById("tipo").value;
-        const colaborador = document.getElementById("colaborador").value.trim();
-        const ano = document.getElementById("ano").value;
+    if (adicionarBtn) {
+        adicionarBtn.addEventListener("click", () => {
+            const matricula = document.getElementById("matricula").value.trim();
+            const nome = document.getElementById("nome").value.trim();
+            const tipo = document.getElementById("tipo").value;
+            const colaborador = document.getElementById("colaborador").value.trim();
+            const ano = document.getElementById("ano").value;
 
-        if (!matricula || !nome || !tipo || !colaborador || !ano) {
-            alert("Preencha todos os campos.");
-            return;
-        }
-
-        const mesesSelecionados = [];
-        document.querySelectorAll("#corpo-tabela-meses tr").forEach(linha => {
-            const chk = linha.querySelector(".mes-selecionado");
-            if (chk && chk.checked) {
-                mesesSelecionados.push({
-                    descricao: `${chk.value} - ${ano}`,
-                    mensalidade: parseFloat(chk.dataset.mensalidade),
-                    mesesAtraso: parseInt(chk.dataset.atraso),
-                    multa: parseInt(chk.dataset.atraso) > 0 ? multa : 0,
-                    juros: parseInt(chk.dataset.atraso) > 0 ? juros : 0,
-                    valorTotal: parseFloat(chk.dataset.total)
-                });
+            if (!matricula || !nome || !tipo || !colaborador || !ano) {
+                alert("Preencha todos os campos.");
+                return;
             }
+
+            const mesesSelecionados = [];
+            document.querySelectorAll("#corpo-tabela-meses tr").forEach(linha => {
+                const chk = linha.querySelector(".mes-selecionado");
+                if (chk && chk.checked) {
+                    mesesSelecionados.push({
+                        descricao: `${chk.value} - ${ano}`,
+                        mensalidade: parseFloat(chk.dataset.mensalidade),
+                        mesesAtraso: parseInt(chk.dataset.atraso),
+                        multa: parseInt(chk.dataset.atraso) > 0 ? multa : 0,
+                        juros: parseInt(chk.dataset.atraso) > 0 ? juros : 0,
+                        valorTotal: parseFloat(chk.dataset.total)
+                    });
+                }
+            });
+
+            if (mesesSelecionados.length === 0) {
+                alert("Selecione pelo menos um mês.");
+                return;
+            }
+
+            // 🔹 VALIDAÇÃO: verificar se já existe registro com mesma matrícula e ano
+            const existe = registros.some(r => r.matricula === matricula && r.ano === ano);
+            if (existe) {
+                alert("Esse ano já foi adicionado para essa matrícula. Se precisar, clique no botão Alterar.");
+                return;
+            }
+
+            // Se passou na validação, adiciona
+            registros.push({ matricula, nome, tipo, colaborador, ano, mesesSelecionados });
+            atualizarTabelaRegistros();
+
+            // NÃO limpar formulário para manter os dados
+            // form.reset();
+
+            // Manter tabela e botões visíveis
+            tabelaMeses.style.display = "table";
+            acoesTabela.style.display = "flex";
+
+            // Mostrar botão limpar
+            limparBtn.style.display = "inline-block";
         });
-
-        if (mesesSelecionados.length === 0) {
-            alert("Selecione pelo menos um mês.");
-            return;
-        }
-
-        // 🔹 VALIDAÇÃO: verificar se já existe registro com mesma matrícula e ano
-        const existe = registros.some(r => r.matricula === matricula && r.ano === ano);
-        if (existe) {
-            alert("Esse ano já foi adicionado para essa matrícula. Se precisar, clique no botão Alterar.");
-            return;
-        }
-
-        // Se passou na validação, adiciona
-        registros.push({ matricula, nome, tipo, colaborador, ano, mesesSelecionados });
-        atualizarTabelaRegistros();
-
-        // NÃO limpar formulário para manter os dados
-        // form.reset();
-
-        // Manter tabela e botões visíveis
-        tabelaMeses.style.display = "table";
-        acoesTabela.style.display = "flex";
-
-        // Mostrar botão limpar
-        limparBtn.style.display = "inline-block";
-    });
-}
+    }
 
     if (limparBtn) {
         limparBtn.addEventListener("click", () => {
@@ -264,6 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 mensalidades: registrosSelecionados.flatMap(r => r.mesesSelecionados)
             };
 
+            // Aqui fazemos a alteração: gerar as tabelas SEM <tfoot> e com total fora da tabela
             localStorage.setItem("dadosRelatorio", JSON.stringify(dadosRelatorio));
             window.open("relatorio.html", "_blank");
         });
