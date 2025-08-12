@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const corpoTabelaMeses = document.getElementById("corpo-tabela-meses");
     const corpoTabelaRegistros = document.getElementById("corpo-tabela-registros");
     const selecionarTodosChk = document.getElementById("selecionarTodos");
+    const selecionarTodosRegistros = document.getElementById("selecionarTodosRegistros");
     const adicionarBtn = document.getElementById("adicionar");
     const limparBtn = document.getElementById("limpar");
     const removerSelecionadosBtn = document.getElementById("removerSelecionados");
@@ -197,6 +198,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function atualizarCheckboxSelecionarTodosRegistros() {
+        const totalRegistros = corpoTabelaRegistros.querySelectorAll("tr").length;
+        if (totalRegistros > 0) {
+            selecionarTodosRegistros.style.display = "inline-block";
+        } else {
+            selecionarTodosRegistros.style.display = "none";
+            selecionarTodosRegistros.checked = false;
+        }
+    }
+
     function atualizarTabelaRegistros() {
         corpoTabelaRegistros.innerHTML = "";
         registros.forEach((reg, index) => {
@@ -215,6 +226,41 @@ document.addEventListener("DOMContentLoaded", () => {
                     </td>
                 </tr>
             `;
+        });
+
+        atualizarCheckboxSelecionarTodosRegistros();
+        atualizarEstadoCheckboxSelecionarTodos();
+        adicionarEventosCheckboxesRegistros();
+    }
+
+    function adicionarEventosCheckboxesRegistros() {
+        const checkboxes = corpoTabelaRegistros.querySelectorAll(".registro-selecionado");
+        checkboxes.forEach(chk => {
+            chk.addEventListener("change", atualizarEstadoCheckboxSelecionarTodos);
+        });
+    }
+
+    function atualizarEstadoCheckboxSelecionarTodos() {
+        const checkboxes = corpoTabelaRegistros.querySelectorAll(".registro-selecionado");
+        const total = checkboxes.length;
+        const marcados = Array.from(checkboxes).filter(chk => chk.checked).length;
+
+        if (marcados === 0) {
+            selecionarTodosRegistros.checked = false;
+            selecionarTodosRegistros.indeterminate = false;
+        } else if (marcados === total) {
+            selecionarTodosRegistros.checked = true;
+            selecionarTodosRegistros.indeterminate = false;
+        } else {
+            selecionarTodosRegistros.checked = false;
+            selecionarTodosRegistros.indeterminate = true; // meio marcado
+        }
+    }
+
+    if (selecionarTodosRegistros) {
+        selecionarTodosRegistros.addEventListener("change", () => {
+            const checkboxes = corpoTabelaRegistros.querySelectorAll(".registro-selecionado");
+            checkboxes.forEach(cb => cb.checked = selecionarTodosRegistros.checked);
         });
     }
 
@@ -372,4 +418,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
 

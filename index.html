@@ -4,7 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gestão de Mensalidades e Atrasos</title>
-<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<link rel="icon" href="./imagens/favicon.ico" type="image/x-icon" />
+
 <link rel="stylesheet" href="style.css" />
 <style>
   /* botão limpar começa oculto */
@@ -17,7 +18,7 @@
 
     <header class="header-topo">
         <div class="container-header">
-            <img src="logo.png" alt="Logo" class="logo" />
+            <img src="./imagens/logo.png" alt="Logo" class="logo" />
             <h1>Gestão de Mensalidades e Atrasos</h1>
         </div>
     </header>
@@ -89,7 +90,7 @@
     <table id="tabela-registros">
         <thead>
             <tr>
-                <th></th>
+                <th><input type="checkbox" id="selecionarTodosRegistros" style="display:none" /></th>
                 <th>Matrícula</th>
                 <th>Nome</th>
                 <th>Tipo</th>
@@ -111,6 +112,4 @@
 
 <script src="script.js"></script>
 </body>
-
 </html>
-
