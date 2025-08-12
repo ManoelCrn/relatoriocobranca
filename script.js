@@ -12,6 +12,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const acoesTabela = document.getElementById("acoes-tabela");
     const matriculaInput = document.getElementById("matricula");
 
+    // Cria o checkbox pra controlar juros e multa
+    const containerForm = document.querySelector(".container form");
+    const divJurosMulta = document.createElement("div");
+    divJurosMulta.style.marginTop = "10px";
+    divJurosMulta.innerHTML = `
+        <label>
+            <input type="checkbox" id="toggleJuros" checked />
+            Aplicar Juros e Multa nas mensalidades atrasadas
+        </label>
+    `;
+    containerForm.appendChild(divJurosMulta);
+
+    const toggleJuros = document.getElementById("toggleJuros");
+
     let registros = [];
     const multa = 2; // 2% fixa
     const juros = 1; // 1% ao mês
@@ -71,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function atualizarTabelaMeses() {
         const ano = parseInt(document.getElementById("ano").value);
         const tipo = document.getElementById("tipo").value;
+        const aplicarJurosEMulta = toggleJuros ? toggleJuros.checked : true; // true se checkbox sumir
 
         if (!ano || ano < 2007 || ano > 2100 || !["Convênio/Plano de Saúde", "SUS"].includes(tipo)) {
             tabelaMeses.style.display = "none";
@@ -86,7 +101,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let totalAtualizado = valorBaseAno;
             if (mesesAtraso > 0) {
-                totalAtualizado += (valorBaseAno * multa / 100) + (valorBaseAno * (juros / 100) * mesesAtraso);
+                if (aplicarJurosEMulta) {
+                    totalAtualizado += (valorBaseAno * multa / 100) + (valorBaseAno * (juros / 100) * mesesAtraso);
+                } else {
+                    totalAtualizado = valorBaseAno;
+                }
             }
 
             corpoTabelaMeses.innerHTML += `
@@ -94,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td><input type="checkbox" class="mes-selecionado" value="${mes}" data-mensalidade="${valorBaseAno}" data-atraso="${mesesAtraso}" data-total="${totalAtualizado.toFixed(2)}"></td>
                     <td>${mes}</td>
                     <td>${valorBaseAno.toFixed(2)}</td>
-                    <td>${mesesAtraso > 0 ? multa : 0}</td>
-                    <td>${mesesAtraso > 0 ? juros : 0}</td>
+                    <td>${(mesesAtraso > 0 && aplicarJurosEMulta) ? multa : 0}</td>
+                    <td>${(mesesAtraso > 0 && aplicarJurosEMulta) ? juros : 0}</td>
                     <td>${mesesAtraso}</td>
                     <td class="total-atualizado">${totalAtualizado.toFixed(2)}</td>
                 </tr>
@@ -111,6 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tipoSelect = document.getElementById("tipo");
     if (anoInput) anoInput.addEventListener("input", atualizarTabelaMeses);
     if (tipoSelect) tipoSelect.addEventListener("change", atualizarTabelaMeses);
+    if (toggleJuros) toggleJuros.addEventListener("change", atualizarTabelaMeses);
 
     if (selecionarTodosChk) {
         selecionarTodosChk.addEventListener("change", () => {
@@ -118,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ** Alteração principal aqui **
     if (adicionarBtn) {
         adicionarBtn.addEventListener("click", () => {
             const matricula = document.getElementById("matricula").value.trim();
@@ -140,8 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         descricao: `${chk.value} - ${ano}`,
                         mensalidade: parseFloat(chk.dataset.mensalidade),
                         mesesAtraso: parseInt(chk.dataset.atraso),
-                        multa: parseInt(chk.dataset.atraso) > 0 ? multa : 0,
-                        juros: parseInt(chk.dataset.atraso) > 0 ? juros : 0,
+                        multa: (parseInt(chk.dataset.atraso) > 0 && toggleJuros.checked) ? multa : 0,
+                        juros: (parseInt(chk.dataset.atraso) > 0 && toggleJuros.checked) ? juros : 0,
                         valorTotal: parseFloat(chk.dataset.total)
                     });
                 }
@@ -152,25 +171,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // 🔹 VALIDAÇÃO: verificar se já existe registro com mesma matrícula e ano
             const existe = registros.some(r => r.matricula === matricula && r.ano === ano);
             if (existe) {
                 alert("Esse ano já foi adicionado para essa matrícula. Se precisar, clique no botão Editar.");
                 return;
             }
 
-            // Se passou na validação, adiciona
             registros.push({ matricula, nome, tipo, colaborador, ano, mesesSelecionados });
             atualizarTabelaRegistros();
 
-            // NÃO limpar formulário para manter os dados
-            // form.reset();
-
-            // Manter tabela e botões visíveis
             tabelaMeses.style.display = "table";
             acoesTabela.style.display = "flex";
 
-            // Mostrar botão limpar
             limparBtn.style.display = "inline-block";
         });
     }
@@ -181,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
             tabelaMeses.style.display = "none";
             acoesTabela.style.display = "none";
 
-            // Esconder botão limpar novamente após limpar
             limparBtn.style.display = "none";
         });
     }
@@ -264,7 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 mensalidades: registrosSelecionados.flatMap(r => r.mesesSelecionados)
             };
 
-            // Aqui fazemos a alteração: gerar as tabelas SEM <tfoot> e com total fora da tabela
             localStorage.setItem("dadosRelatorio", JSON.stringify(dadosRelatorio));
             window.open("relatorio.html", "_blank");
         });
@@ -324,13 +334,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const mensalidadeBase = grupo[0].mensalidade;
                 const mesesCount = grupo.length;
                 const temAtraso = grupo.some(g => g.mesesAtraso > 0);
-                const multaExibir = temAtraso ? multa : 0;
-                const jurosExibir = temAtraso ? juros : 0;
+                const multaExibir = temAtraso && toggleJuros.checked ? multa : 0;
+                const jurosExibir = temAtraso && toggleJuros.checked ? juros : 0;
 
                 let somaAno = 0;
                 grupo.forEach(g => {
                     let totalMes = g.mensalidade;
-                    if (g.mesesAtraso > 0) {
+                    if (g.mesesAtraso > 0 && toggleJuros.checked) {
                         totalMes += (g.mensalidade * multa / 100) + (g.mensalidade * (juros / 100) * g.mesesAtraso);
                     }
                     somaAno += totalMes;
@@ -364,5 +374,3 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
-
