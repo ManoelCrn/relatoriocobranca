@@ -181,16 +181,18 @@
             localStorage.removeItem("dadosRelatorio");
 
             // Botão imprimir
-            document.getElementById("btnImprimir").addEventListener("click", () => {
-                window.print();
-            });
+            const btnImprimir = document.getElementById("btnImprimir");
+            if (btnImprimir) {
+                btnImprimir.addEventListener("click", () => {
+                    window.print();
+                });
 
             // Botão salvar PDF
-            document.getElementById("btnSalvarPDF").addEventListener("click", () => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+            //document.getElementById("btnSalvarPDF").addEventListener("click", () => {
+              //  const { jsPDF } = window.jspdf;
+                //const doc = new jsPDF();
 
-                const containerPdf = document.getElementById("relatorioContainer");
+                //const containerPdf = document.getElementById("relatorioContainer");
 
                 html2canvas(containerPdf, { useCORS: true }).then(canvas => {
                     const imgData = canvas.toDataURL("image/png");
@@ -208,4 +210,5 @@
     </script>
 </body>
 </html>
+
 
