@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getValorBase(tipo, ano) {
-        if (tipo === "Particular") return valoresParticular[ano] ?? 95;
+        if (tipo === "Convênio/Plano de Saúde") return valoresParticular[ano] ?? 95;
         if (tipo === "SUS") return valoresSUS[ano] ?? 1;
         return 0;
     }
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const ano = parseInt(document.getElementById("ano").value);
         const tipo = document.getElementById("tipo").value;
 
-        if (!ano || ano < 2000 || ano > 2100 || !["Particular", "SUS"].includes(tipo)) {
+        if (!ano || ano < 2007 || ano > 2100 || !["Convênio/Plano de Saúde", "SUS"].includes(tipo)) {
             tabelaMeses.style.display = "none";
             acoesTabela.style.display = "none";
             return;
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // 🔹 VALIDAÇÃO: verificar se já existe registro com mesma matrícula e ano
             const existe = registros.some(r => r.matricula === matricula && r.ano === ano);
             if (existe) {
-                alert("Esse ano já foi adicionado para essa matrícula. Se precisar, clique no botão Alterar.");
+                alert("Esse ano já foi adicionado para essa matrícula. Se precisar, clique no botão Editar.");
                 return;
             }
 
@@ -364,4 +364,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
 
